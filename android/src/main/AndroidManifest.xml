@@ -1,5 +1,34 @@
 
   <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.freshconnect.capacitor.webchat.freshconnectcapacitorwebchat">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application>
+      <activity
+          android:name="com.freshconnect.capacitor.plugins.webchat.wxapi.WXEntryActivity"
+          android:label="WXEntryActivity"
+          android:theme="@android:style/Theme.Translucent.NoTitleBar"
+          android:exported="true"
+          android:taskAffinity="com.freshconnect.capacitor.plugins.webchat"
+          android:launchMode="singleTask">
+
+      </activity>
+
+      <activity-alias
+          android:name="com.freshconnect.capacitor.plugins.webchat.wxapi.WXEntryActivity"
+          android:exported="true"
+          android:targetActivity="com.freshconnect.capacitor.plugins.webchat.wxapi.WXEntryActivity">
+      </activity-alias>
+
+    </application>
+
+    <queries>
+      <package android:name="com.tencent.mm" />
+    </queries>
+
   </manifest>
   
