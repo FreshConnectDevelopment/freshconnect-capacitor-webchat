@@ -13,6 +13,7 @@ import com.tencent.mm.opensdk.constants.ConstantsAPI;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth.Resp;
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
@@ -103,7 +104,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     handleAuth(baseResp);
                     break;
                 default:
-                    Log.w(FreshconnectWebChat.LOG_TAG, "unsupport type");
+                    handleCommonRequest(baseResp);
             }
         } else {
             switch (baseResp.getType()) {
@@ -111,11 +112,37 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     handleAuthResponse(baseResp);
                     break;
                 default:
-                    Log.w(FreshconnectWebChat.LOG_TAG, "unsupport type");
+                    handleCommonResponse(baseResp);
             }
             Log.e(FreshconnectWebChat.LOG_TAG, "errorCode:" + baseResp.errCode + " errMsg:" + baseResp.errStr);
         }
 
+    }
+
+    private void handleCommonRequest(BaseResp baseResp) {
+        String transaction = baseResp.transaction;
+        PluginCall pluginCall = pluginCallCache.getPluginCall(transaction);
+        if (pluginCall == null) {
+            Log.e(FreshconnectWebChat.LOG_TAG, transaction + ",pluginCall is null");
+        } else {
+            JSObject ret = new JSObject();
+            ret.put("errCode", baseResp.errCode);
+            ret.put("errMsg", baseResp.errStr);
+            pluginCall.resolve(ret);
+        }
+    }
+
+    private void handleCommonResponse(BaseResp baseResp) {
+        String transaction = baseResp.transaction;
+        PluginCall pluginCall = pluginCallCache.getPluginCall(transaction);
+        if (pluginCall == null) {
+            Log.e(FreshconnectWebChat.LOG_TAG, transaction + ",pluginCall is null");
+        } else {
+            JSObject ret = new JSObject();
+            ret.put("errCode", baseResp.errCode);
+            ret.put("errMsg", baseResp.errStr);
+            pluginCall.resolve(ret);
+        }
     }
 
     private void handleAuthResponse(BaseResp baseResp) {

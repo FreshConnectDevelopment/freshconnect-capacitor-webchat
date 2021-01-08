@@ -1,8 +1,12 @@
 package com.freshconnect.capacitor.webchat;
+
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.freshconnect.capacitor.plugins.webchat.freshconnectcapacitorwebchat.R;
+import com.freshconnect.capacitor.webchat.freshconnectcapacitorwebchat.R;
+import com.freshconnect.capacitor.webchat.wxapi.Util;
 import com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
@@ -10,6 +14,11 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.tencent.mm.opensdk.modelmsg.SendAuth.Req;
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.opensdk.modelmsg.WXImageObject;
+import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject;
+import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
@@ -30,6 +39,11 @@ public class FreshconnectWebChat extends Plugin {
      * 移动应用从微信官方网站申请到的合法app秘钥
      */
     public static String APP_SECRET = "";
+
+    /**
+     * 缩略图大小
+     */
+    private static final int THUMB_SIZE = 150;
 
     /**
      * 日志前缀
@@ -82,6 +96,115 @@ public class FreshconnectWebChat extends Plugin {
         IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
         api.sendReq(req);
         Log.i(this.LOG_TAG, "send auth request to wechat");
+    }
+
+    /**
+     * 微信分享文本
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void shareText(PluginCall call) {
+        UUID uuid = UUID.randomUUID();
+        String transaction = uuid.toString();
+        WXEntryActivity.getPluginCallCache().addPluginCallCache(transaction, call);
+        IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
+        String text = call.getString("text");
+        int mTargetScene = call.getInt("scene");
+
+        //初始化一个 WXTextObject 对象，填写分享的文本内容
+        WXTextObject textObj = new WXTextObject();
+        textObj.text = text;
+
+        //用 WXTextObject 对象初始化一个 WXMediaMessage 对象
+        WXMediaMessage msg = new WXMediaMessage();
+        msg.mediaObject = textObj;
+        msg.description = text;
+
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = transaction;
+        req.message = msg;
+        req.scene = mTargetScene;
+        //调用api接口，发送数据到微信
+        api.sendReq(req);
+        Log.i(this.LOG_TAG, "send shareText request to wechat");
+    }
+
+    /**
+     * 微信分享图片
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void sharePicture(PluginCall call) {
+        UUID uuid = UUID.randomUUID();
+        String transaction = uuid.toString();
+        WXEntryActivity.getPluginCallCache().addPluginCallCache(transaction, call);
+
+        IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
+        int mTargetScene = call.getInt("scene");
+
+        byte[] imgData = call.getString("imgData").getBytes();
+        Bitmap bmp = BitmapFactory.decodeByteArray(imgData, 0, imgData.length);
+
+        //初始化 WXImageObject 和 WXMediaMessage 对象
+        WXImageObject imgObj = new WXImageObject(bmp);
+        WXMediaMessage msg = new WXMediaMessage();
+        msg.mediaObject = imgObj;
+
+        //设置缩略图
+        Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+        bmp.recycle();
+        msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+
+        //构造一个Req
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = transaction;
+        req.message = msg;
+        req.scene = mTargetScene;
+        //调用api接口，发送数据到微信
+        api.sendReq(req);
+        Log.i(this.LOG_TAG, "send sharePicture request to wechat");
+    }
+
+    /**
+     * 分享微信小程序
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void shareMiniProgram(PluginCall call) {
+        UUID uuid = UUID.randomUUID();
+        String transaction = uuid.toString();
+        WXEntryActivity.getPluginCallCache().addPluginCallCache(transaction, call);
+
+        IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
+        int mTargetScene = call.getInt("scene");
+
+        WXMiniProgramObject miniProgramObj = new WXMiniProgramObject();
+        String webpageUrl = call.getString("webpageUrl");
+        int miniprogramType = call.getInt("miniprogramType");
+        String userName = call.getString("userName");
+        String path = call.getString("path");
+        String title = call.getString("title");
+        String description = call.getString("description");
+        byte[] thumbData = call.getString("thumbData").getBytes();
+
+        miniProgramObj.webpageUrl = webpageUrl; // 兼容低版本的网页链接
+        miniProgramObj.miniprogramType = miniprogramType;// 正式版:0，测试版:1，体验版:2
+        miniProgramObj.userName = userName;     // 小程序原始id
+        miniProgramObj.path = path;            //小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
+        WXMediaMessage msg = new WXMediaMessage(miniProgramObj);
+        msg.title = title;                    // 小程序消息title
+        msg.description = description;               // 小程序消息desc
+        msg.thumbData = thumbData;                      // 小程序消息封面图片，小于128k
+
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = transaction;
+        req.message = msg;
+        req.scene = SendMessageToWX.Req.WXSceneSession;  // 目前只支持会话
+        api.sendReq(req);
+        Log.i(this.LOG_TAG, "send shareMiniProgram request to wechat");
     }
 
     @Override
