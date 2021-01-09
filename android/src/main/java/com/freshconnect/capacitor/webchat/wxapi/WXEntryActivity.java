@@ -136,7 +136,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         if (pluginCall == null) {
             Log.e(FreshconnectWebChat.LOG_TAG, appId + ",pluginCall is null");
         } else {
-            WXLaunchMiniProgram.Resp launchMiniProResp = (WXLaunchMiniProgram.Resp) resp;
+            WXLaunchMiniProgram.Resp launchMiniProResp = (WXLaunchMiniProgram.Resp) baseResp;
             JSObject ret = new JSObject();
             ret.put("extraData", launchMiniProResp.extMsg);
             pluginCall.resolve(ret);
