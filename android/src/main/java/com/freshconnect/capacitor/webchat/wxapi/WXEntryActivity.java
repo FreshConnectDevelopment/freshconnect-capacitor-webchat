@@ -132,7 +132,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      */
     private void handleLaunchWxMiniprogram(BaseResp baseResp) {
         String appId = FreshconnectWebChat.APP_ID; // 填移动应用(App)的 AppId，非小程序的 AppID
-        PluginCall pluginCall = pluginCallCache.getPluginCall(transaction);
+        PluginCall pluginCall = pluginCallCache.getPluginCall(appId);
         if (pluginCall == null) {
             Log.e(FreshconnectWebChat.LOG_TAG, appId + ",pluginCall is null");
         } else {

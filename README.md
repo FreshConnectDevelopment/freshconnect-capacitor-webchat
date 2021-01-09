@@ -10,3 +10,7 @@
 
 ## 插件开发注意的事情
 - 在android studio中debug的时候会在node_modules中新增xml文件，如果之前已经debug过生成的文件后面会增加数字，当数字增加到3之后debug会出现报错，提示文件名校验失败。需要根据Android studio报错路径删除带数字的文件，删除后需要rebuild一下才会起效。
+- 发布的时候需要切换npm源为官方源
+npm config set registry https://registry.npmjs.org
+
+npm config set registry https://registry.npm.taobao.org
