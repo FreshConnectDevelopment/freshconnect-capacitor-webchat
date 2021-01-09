@@ -12,6 +12,9 @@ import com.getcapacitor.PluginCall;
 import com.tencent.mm.opensdk.constants.ConstantsAPI;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
+import com.tencent.mm.opensdk.modelbiz.SubscribeMessage;
+import com.tencent.mm.opensdk.modelbiz.WXLaunchMiniProgram;
+import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.modelmsg.SendAuth.Resp;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
@@ -88,7 +91,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      */
     @Override
     public void onReq(BaseReq baseReq) {
-
+        finish();
     }
 
     /**
@@ -102,6 +105,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             switch (baseResp.getType()) {
                 case ConstantsAPI.COMMAND_SENDAUTH:
                     handleAuth(baseResp);
+                    break;
+                case ConstantsAPI.COMMAND_LAUNCH_WX_MINIPROGRAM:
+                    handleLaunchWxMiniprogram(baseResp);
                     break;
                 default:
                     handleCommonRequest(baseResp);
@@ -117,6 +123,24 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             Log.e(FreshconnectWebChat.LOG_TAG, "errorCode:" + baseResp.errCode + " errMsg:" + baseResp.errStr);
         }
 
+    }
+
+    /**
+     * 拉起小程序相应处理
+     *
+     * @param baseResp
+     */
+    private void handleLaunchWxMiniprogram(BaseResp baseResp) {
+        String appId = FreshconnectWebChat.APP_ID; // 填移动应用(App)的 AppId，非小程序的 AppID
+        PluginCall pluginCall = pluginCallCache.getPluginCall(transaction);
+        if (pluginCall == null) {
+            Log.e(FreshconnectWebChat.LOG_TAG, appId + ",pluginCall is null");
+        } else {
+            WXLaunchMiniProgram.Resp launchMiniProResp = (WXLaunchMiniProgram.Resp) resp;
+            JSObject ret = new JSObject();
+            ret.put("extraData", launchMiniProResp.extMsg);
+            pluginCall.resolve(ret);
+        }
     }
 
     private void handleCommonRequest(BaseResp baseResp) {
@@ -161,23 +185,45 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     /**
      * 第三方发起微信授权登录请求，微信用户允许授权第三方应用后，微信会拉起应用或重定向到第三方网站，并且带上授权临时票据code参数
+     * <p>
+     * 授权回调有两种场景会触发，登录授权和订阅授权都会回调
      *
      * @param baseResp
      */
     private void handleAuth(BaseResp baseResp) {
-        Resp authResp = (Resp) baseResp;
-        //授权临时票据code参数
-        String code = authResp.code;
-        String state = authResp.state;
-        PluginCall pluginCall = pluginCallCache.getPluginCall(state);
-        if (pluginCall == null) {
-            Log.e(FreshconnectWebChat.LOG_TAG, state + ",pluginCall is null");
+        if (baseResp instanceof SendAuth.Resp) {
+            //用户授权登录
+            Resp authResp = (Resp) baseResp;
+            String state = authResp.state;
+            PluginCall pluginCall = pluginCallCache.getPluginCall(state);
+            if (pluginCall == null) {
+                Log.e(FreshconnectWebChat.LOG_TAG, state + ",pluginCall is null");
+            } else {
+                JSObject ret = new JSObject();
+                ret.put("errCode", authResp.errCode);
+                ret.put("errMsg", authResp.errStr);
+                ret.put("code", authResp.code);
+                ret.put("openId", authResp.openId);
+                pluginCall.resolve(ret);
+            }
         } else {
-            JSObject ret = new JSObject();
-            ret.put("errCode", authResp.errCode);
-            ret.put("errMsg", authResp.errStr);
-            ret.put("code", code);
-            pluginCall.resolve(ret);
+            //用户订阅授权
+            SubscribeMessage.Resp subscribeMessageResp = (SubscribeMessage.Resp) baseResp;
+            String reserved = subscribeMessageResp.reserved;
+            PluginCall pluginCall = pluginCallCache.getPluginCall(reserved);
+            if (pluginCall == null) {
+                Log.e(FreshconnectWebChat.LOG_TAG, reserved + ",pluginCall is null");
+            } else {
+                JSObject ret = new JSObject();
+                ret.put("errCode", subscribeMessageResp.errCode);
+                ret.put("errMsg", subscribeMessageResp.errStr);
+                ret.put("openId", subscribeMessageResp.openId);
+                ret.put("templateID", subscribeMessageResp.templateID);
+                ret.put("action", subscribeMessageResp.action);
+                ret.put("scene", subscribeMessageResp.scene);
+                ret.put("reserved", subscribeMessageResp.reserved);
+                pluginCall.resolve(ret);
+            }
         }
 
     }

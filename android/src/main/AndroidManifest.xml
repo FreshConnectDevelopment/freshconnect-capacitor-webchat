@@ -9,7 +9,7 @@
 
     <application>
       <activity
-          android:name="com.freshconnect.capacitor.plugins.webchat.wxapi.WXEntryActivity"
+          android:name="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity"
           android:label="WXEntryActivity"
           android:theme="@android:style/Theme.Translucent.NoTitleBar"
           android:exported="true"
@@ -19,9 +19,9 @@
       </activity>
 
       <activity-alias
-          android:name="com.freshconnect.capacitor.plugins.webchat.wxapi.WXEntryActivity"
+          android:name="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity"
           android:exported="true"
-          android:targetActivity="com.freshconnect.capacitor.plugins.webchat.wxapi.WXEntryActivity">
+          android:targetActivity="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity">
       </activity-alias>
 
     </application>

@@ -13,6 +13,8 @@ import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.tencent.mm.opensdk.modelbiz.SubscribeMessage;
+import com.tencent.mm.opensdk.modelbiz.WXLaunchMiniProgram;
 import com.tencent.mm.opensdk.modelmsg.SendAuth.Req;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXImageObject;
@@ -66,15 +68,7 @@ public class FreshconnectWebChat extends Plugin {
     public void load() {
         FreshconnectWebChat.APP_ID = this.getContext().getString(R.string.app_id);
         FreshconnectWebChat.APP_SECRET = this.getContext().getString(R.string.app_secret);
-    }
 
-    /**
-     * 将程序注册到微信,接口调用的必备条件
-     *
-     * @param call
-     */
-    @PluginMethod()
-    public void registerWx(PluginCall call) {
         IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
         api.registerApp(FreshconnectWebChat.APP_ID);
         Log.i(this.LOG_TAG, "register to wechat");
@@ -109,7 +103,9 @@ public class FreshconnectWebChat extends Plugin {
         String transaction = uuid.toString();
         WXEntryActivity.getPluginCallCache().addPluginCallCache(transaction, call);
         IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
+
         String text = call.getString("text");
+        String description = call.getString("description");
         int mTargetScene = call.getInt("scene");
 
         //初始化一个 WXTextObject 对象，填写分享的文本内容
@@ -119,7 +115,7 @@ public class FreshconnectWebChat extends Plugin {
         //用 WXTextObject 对象初始化一个 WXMediaMessage 对象
         WXMediaMessage msg = new WXMediaMessage();
         msg.mediaObject = textObj;
-        msg.description = text;
+        msg.description = description;
 
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.transaction = transaction;
@@ -168,6 +164,53 @@ public class FreshconnectWebChat extends Plugin {
     }
 
     /**
+     * 微信消息订阅
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void subscribeMessage(PluginCall call) {
+        UUID uuid = UUID.randomUUID();
+        String reserved = uuid.toString();
+        WXEntryActivity.getPluginCallCache().addPluginCallCache(reserved, call);
+
+        IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
+
+        SubscribeMessage.Req req = new SubscribeMessage.Req();
+        req.scene = call.getInt("scene");
+        req.templateID = call.getString("templateID");
+        req.reserved = reserved;
+        //调用api接口，发送数据到微信
+        api.sendReq(req);
+        Log.i(this.LOG_TAG, "send sharePicture request to wechat");
+    }
+
+    /**
+     * 拉起微信小程序
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void launchMiniProgram(PluginCall call) {
+
+        IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
+
+        String appId = FreshconnectWebChat.APP_ID; // 填移动应用(App)的 AppId，非小程序的 AppID
+
+        WXEntryActivity.getPluginCallCache().addPluginCallCache(appId, call);
+
+        WXLaunchMiniProgram.Req req = new WXLaunchMiniProgram.Req();
+        req.userName = call.getString("userName"); // 填小程序原始id
+        req.path = call.getString("path");                  ////拉起小程序页面的可带参路径，不填默认拉起小程序首页，对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"。
+        req.miniprogramType = call.getInt("miniprogramType");// 可选打开 开发版，体验版和正式版
+        api.sendReq(req);
+
+        //调用api接口，发送数据到微信
+        api.sendReq(req);
+        Log.i(this.LOG_TAG, "send sharePicture request to wechat");
+    }
+
+    /**
      * 分享微信小程序
      *
      * @param call
@@ -205,10 +248,5 @@ public class FreshconnectWebChat extends Plugin {
         req.scene = SendMessageToWX.Req.WXSceneSession;  // 目前只支持会话
         api.sendReq(req);
         Log.i(this.LOG_TAG, "send shareMiniProgram request to wechat");
-    }
-
-    @Override
-    protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-        super.handleOnActivityResult(requestCode, resultCode, data);
     }
 }
