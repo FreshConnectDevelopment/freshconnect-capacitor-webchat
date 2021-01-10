@@ -54,6 +54,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         try {
             // WXEntryActivity 中将接收到的 intent 及实现了 IWXAPIEventHandler 接口的对象传递给 IWXAPI 接口的
             // handleIntent方法
+            setIntent(intent);
             api.handleIntent(getIntent(), this);
         } catch (Exception e) {
             Log.e(FreshconnectWebChat.LOG_TAG, e.getMessage());
@@ -102,23 +103,34 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onResp(BaseResp baseResp) {
         if (BaseResp.ErrCode.ERR_OK == baseResp.errCode) {
+            if (baseResp instanceof SubscribeMessage.Resp) {
+                handleAuth(baseResp);
+                finish();
+                Log.e(FreshconnectWebChat.LOG_TAG, "errorCode:" + baseResp.errCode + " errMsg:" + baseResp.errStr);
+                return;
+            }
             switch (baseResp.getType()) {
                 case ConstantsAPI.COMMAND_SENDAUTH:
                     handleAuth(baseResp);
+                    finish();
                     break;
                 case ConstantsAPI.COMMAND_LAUNCH_WX_MINIPROGRAM:
                     handleLaunchWxMiniprogram(baseResp);
+                    finish();
                     break;
                 default:
                     handleCommonRequest(baseResp);
+                    finish();
             }
         } else {
             switch (baseResp.getType()) {
                 case ConstantsAPI.COMMAND_SENDAUTH:
                     handleAuthResponse(baseResp);
+                    finish();
                     break;
                 default:
                     handleCommonResponse(baseResp);
+                    finish();
             }
             Log.e(FreshconnectWebChat.LOG_TAG, "errorCode:" + baseResp.errCode + " errMsg:" + baseResp.errStr);
         }

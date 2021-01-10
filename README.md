@@ -53,7 +53,14 @@ var request = {
   templateID:string, // 消息模板ID
   scene:number //重定向后会带上 scene 参数，开发者可以填 0-10000 的整形值，用来标识订阅场值
 };
-FreshconnectWebChat.subscribeMessage(request);
+FreshconnectWebChat.subscribeMessage(request).then(function (e) {
+  console.info("subscribeMessage:" + JSON.stringify(e));
+});
+
+- 微信认证
+FreshconnectWebChat.authLogin().then(function (e) {
+  console.info("authLogin:" + JSON.stringify(e));
+});
 
 ## 本地插件测试
 - 运行 sudo npm link

@@ -14,15 +14,14 @@
           android:label="WXEntryActivity"
           android:theme="@android:style/Theme.Translucent.NoTitleBar"
           android:exported="true"
-          android:taskAffinity="com.freshconnect.capacitor.plugins.webchat"
+          android:taskAffinity="org.capacitor.quasar.app"
           android:launchMode="singleTask">
-
       </activity>
 
       <activity-alias
-          android:name="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity"
+          android:name="org.capacitor.quasar.app.wxapi.WXEntryActivity"
           android:exported="true"
-          android:targetActivity="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity">
+          android:targetActivity="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity" >
       </activity-alias>
 
     </application>
@@ -32,4 +31,3 @@
     </queries>
 
   </manifest>
-  
