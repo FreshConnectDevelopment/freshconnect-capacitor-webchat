@@ -37,14 +37,11 @@ export class FreshconnectWebchatWeb extends WebPlugin implements FreshconnectWeb
     console.log('ECHO', options);
     return options;
   }
-
-  registerWx() { }
-
 }
 
-const FreshconnectWebchat = new FreshconnectWebchatWeb();
+const FreshconnectWebChat = new FreshconnectWebchatWeb();
 
-export { FreshconnectWebchat };
+export { FreshconnectWebChat };
 
 import { registerWebPlugin } from '@capacitor/core';
-registerWebPlugin(FreshconnectWebchat);
+registerWebPlugin(FreshconnectWebChat);

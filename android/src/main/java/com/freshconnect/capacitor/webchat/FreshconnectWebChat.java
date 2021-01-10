@@ -1,18 +1,20 @@
 package com.freshconnect.capacitor.webchat;
 
-import android.content.Intent;
+import android.Manifest;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.freshconnect.capacitor.webchat.freshconnectcapacitorwebchat.R;
-import com.freshconnect.capacitor.webchat.wxapi.Util;
+import com.freshconnect.capacitor.webchat.util.Util;
 import com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.PluginRequestCodes;
 import com.tencent.mm.opensdk.modelbiz.SubscribeMessage;
 import com.tencent.mm.opensdk.modelbiz.WXLaunchMiniProgram;
 import com.tencent.mm.opensdk.modelmsg.SendAuth.Req;
@@ -133,6 +135,11 @@ public class FreshconnectWebChat extends Plugin {
      */
     @PluginMethod()
     public void sharePicture(PluginCall call) {
+
+        if (this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
+        }
+
         UUID uuid = UUID.randomUUID();
         String transaction = uuid.toString();
         WXEntryActivity.getPluginCallCache().addPluginCallCache(transaction, call);
@@ -140,8 +147,9 @@ public class FreshconnectWebChat extends Plugin {
         IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
         int mTargetScene = call.getInt("scene");
 
-        byte[] imgData = call.getString("imgData").getBytes();
-        Bitmap bmp = BitmapFactory.decodeByteArray(imgData, 0, imgData.length);
+        String imgData = call.getString("imgData");
+
+        Bitmap bmp = BitmapFactory.decodeStream(Util.getFileInputStream(imgData, getContext()));
 
         //初始化 WXImageObject 和 WXMediaMessage 对象
         WXImageObject imgObj = new WXImageObject(bmp);
@@ -217,12 +225,15 @@ public class FreshconnectWebChat extends Plugin {
      */
     @PluginMethod()
     public void shareMiniProgram(PluginCall call) {
+
+        if (this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
+        }
         UUID uuid = UUID.randomUUID();
         String transaction = uuid.toString();
         WXEntryActivity.getPluginCallCache().addPluginCallCache(transaction, call);
 
         IWXAPI api = WXAPIFactory.createWXAPI(getContext(), FreshconnectWebChat.APP_ID, true);
-        int mTargetScene = call.getInt("scene");
 
         WXMiniProgramObject miniProgramObj = new WXMiniProgramObject();
         String webpageUrl = call.getString("webpageUrl");
@@ -231,7 +242,12 @@ public class FreshconnectWebChat extends Plugin {
         String path = call.getString("path");
         String title = call.getString("title");
         String description = call.getString("description");
-        byte[] thumbData = call.getString("thumbData").getBytes();
+        String imgData = call.getString("thumbData");
+
+        Bitmap bmp = BitmapFactory.decodeStream(Util.getFileInputStream(imgData, getContext()));
+        Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+        bmp.recycle();
+        byte[] thumbData = Util.bmpToByteArray(thumbBmp, true);
 
         miniProgramObj.webpageUrl = webpageUrl; // 兼容低版本的网页链接
         miniProgramObj.miniprogramType = miniprogramType;// 正式版:0，测试版:1，体验版:2
