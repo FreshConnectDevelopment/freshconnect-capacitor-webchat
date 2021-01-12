@@ -1,4 +1,6 @@
 #import <UIKit/UIKit.h>
+#import "WXApi.h"
+#import "WechatAuthSDK.h"
 
 //! Project version number for Plugin.
 FOUNDATION_EXPORT double PluginVersionNumber;
