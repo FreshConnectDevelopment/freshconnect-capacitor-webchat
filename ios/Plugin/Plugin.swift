@@ -13,7 +13,9 @@ public class FreshconnectWebchat: CAPPlugin {
     
     override public func load() {
         
-
+        let appid = ""
+        let universalLink = ""
+        WXApi.registerApp(appid, universalLink: universalLink)
     }
     
     @objc func echo(_ call: CAPPluginCall) {
