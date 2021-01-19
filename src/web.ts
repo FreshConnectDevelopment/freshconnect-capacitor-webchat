@@ -1,5 +1,5 @@
 import { WebPlugin } from '@capacitor/core';
-import { ShareTextRequest, AuthLoginResponse, FreshconnectWebchatPlugin, LaunchWxMiniprogramResp, Resp, SubscribeMessageResp, LaunchMiniProgramRequest, ShareMiniProgramRequest, SharePictureRequest, SubscribeMessageRequest } from './definitions';
+import { ShareTextRequest, AuthLoginResponse, FreshconnectWebchatPlugin, LaunchWxMiniprogramResp, Resp, SubscribeMessageResp, LaunchMiniProgramRequest, ShareMiniProgramRequest, SharePictureRequest, SubscribeMessageRequest, DownloadImgRequest, DownloadImgResp } from './definitions';
 
 export class FreshconnectWebchatWeb extends WebPlugin implements FreshconnectWebchatPlugin {
 
@@ -8,6 +8,10 @@ export class FreshconnectWebchatWeb extends WebPlugin implements FreshconnectWeb
       name: 'FreshconnectWebchat',
       platforms: ['web'],
     });
+  }
+  downloadImg(request: DownloadImgRequest): Promise<DownloadImgResp> {
+    console.log('downloadImg', request);
+    throw new Error('Method not implemented.');
   }
   authLogin(): Promise<AuthLoginResponse> {
     throw new Error('Method not implemented.');

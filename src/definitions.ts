@@ -63,6 +63,17 @@ export interface LaunchMiniProgramRequest {
   miniprogramType:number //0:正式版小程序 1:测试版小程序 2:预览版小程序
 } 
 
+export interface DownloadImgRequest { 
+  imgData:string, // 图片路径或者base64编码图片或者手机相对路径
+  type:number //0:base64
+} 
+
+export interface DownloadImgResp {
+  errCode:  0;
+  errMsg: '';
+  data: '';
+}
+
 export interface FreshconnectWebchatPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
   authLogin(): Promise<AuthLoginResponse>;
@@ -71,4 +82,5 @@ export interface FreshconnectWebchatPlugin {
   shareMiniProgram(request: ShareMiniProgramRequest): Promise<Resp>;
   launchMiniProgram(request: LaunchMiniProgramRequest): Promise<LaunchWxMiniprogramResp>;
   subscribeMessage(request: SubscribeMessageRequest): Promise<SubscribeMessageResp>;
+  downloadImg(request: DownloadImgRequest): Promise<DownloadImgResp>;
 }

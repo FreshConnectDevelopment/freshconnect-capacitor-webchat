@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 
 import com.freshconnect.capacitor.webchat.freshconnectcapacitorwebchat.R;
@@ -26,6 +27,9 @@ import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 /**
@@ -211,7 +215,6 @@ public class FreshconnectWebChat extends Plugin {
         req.userName = call.getString("userName"); // 填小程序原始id
         req.path = call.getString("path");                  ////拉起小程序页面的可带参路径，不填默认拉起小程序首页，对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"。
         req.miniprogramType = call.getInt("miniprogramType");// 可选打开 开发版，体验版和正式版
-        api.sendReq(req);
 
         //调用api接口，发送数据到微信
         api.sendReq(req);
@@ -264,5 +267,41 @@ public class FreshconnectWebChat extends Plugin {
         req.scene = SendMessageToWX.Req.WXSceneSession;  // 目前只支持会话
         api.sendReq(req);
         Log.i(this.LOG_TAG, "send shareMiniProgram request to wechat");
+    }
+
+    /**
+     * 下载图片
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void downloadImg(PluginCall call) throws IOException {
+
+        if (this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
+        }
+
+        String imgData = call.getString("imgData");
+
+        InputStream fileInputStream = Util.getFileInputStream(imgData, getContext());
+        byte[] array = Util.inputStreamToByte(fileInputStream);
+
+        if(array == null){
+            JSObject ret = new JSObject();
+            ret.put("errCode", 1);
+            ret.put("errMsg", "文件路径有误：" + imgData);
+            call.resolve(ret);
+            Log.i(this.LOG_TAG, "文件路径有误：" + imgData);
+        }
+        String base64 = Base64.encodeToString(array, Base64.DEFAULT);
+        fileInputStream.close();
+
+        JSObject ret = new JSObject();
+        ret.put("errCode", 0);
+        ret.put("errMsg", "");
+        ret.put("data", base64);
+        call.resolve(ret);
+        Log.i(this.LOG_TAG, "download img");
+
     }
 }
