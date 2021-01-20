@@ -292,6 +292,7 @@ public class FreshconnectWebChat extends Plugin {
             ret.put("errMsg", "文件路径有误：" + imgData);
             call.resolve(ret);
             Log.i(this.LOG_TAG, "文件路径有误：" + imgData);
+            return;
         }
         String base64 = Base64.encodeToString(array, Base64.DEFAULT);
         fileInputStream.close();
