@@ -7,8 +7,9 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-    <application android:requestLegacyExternalStorage = "true" >
+    <application android:requestLegacyExternalStorage="true" >
       <activity
           android:name="com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity"
           android:label="WXEntryActivity"

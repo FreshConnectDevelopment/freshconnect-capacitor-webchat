@@ -74,6 +74,12 @@ export interface DownloadImgResp {
   data: '';
 }
 
+export interface HasPermissionResp {
+  errCode:  0;
+  errMsg: '';
+  data: '';
+}
+
 export interface FreshconnectWebchatPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
   authLogin(): Promise<AuthLoginResponse>;
@@ -83,4 +89,5 @@ export interface FreshconnectWebchatPlugin {
   launchMiniProgram(request: LaunchMiniProgramRequest): Promise<LaunchWxMiniprogramResp>;
   subscribeMessage(request: SubscribeMessageRequest): Promise<SubscribeMessageResp>;
   downloadImg(request: DownloadImgRequest): Promise<DownloadImgResp>;
+  hasPermission(): Promise<HasPermissionResp>;
 }

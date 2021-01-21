@@ -277,7 +277,7 @@ public class FreshconnectWebChat extends Plugin {
     @PluginMethod()
     public void downloadImg(PluginCall call) throws IOException {
 
-        if (this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (!this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
         }
 
@@ -303,6 +303,26 @@ public class FreshconnectWebChat extends Plugin {
         ret.put("data", base64);
         call.resolve(ret);
         Log.i(this.LOG_TAG, "download img");
+
+    }
+
+
+
+    /**
+     * 下载图片
+     *
+     * @param call
+     */
+    @PluginMethod()
+    public void hasPermission(PluginCall call) throws IOException {
+
+        JSObject ret = new JSObject();
+        if (!this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
+            ret.put("errCode", -1);
+            ret.put("errMsg", "plugin request permission");
+        }
+        call.resolve(ret);
 
     }
 }
