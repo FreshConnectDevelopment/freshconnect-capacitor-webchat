@@ -2,6 +2,7 @@ package com.freshconnect.capacitor.webchat;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
@@ -11,6 +12,7 @@ import com.freshconnect.capacitor.webchat.freshconnectcapacitorwebchat.R;
 import com.freshconnect.capacitor.webchat.util.Util;
 import com.freshconnect.capacitor.webchat.wxapi.WXEntryActivity;
 import com.getcapacitor.JSObject;
+import com.getcapacitor.Logger;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -35,7 +37,11 @@ import java.util.UUID;
 /**
  * 微信插件主入口
  */
-@NativePlugin
+@NativePlugin(
+    requestCodes = {
+            FreshConnectPluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS
+    }
+)
 public class FreshconnectWebChat extends Plugin {
 
     /**
@@ -286,7 +292,7 @@ public class FreshconnectWebChat extends Plugin {
         InputStream fileInputStream = Util.getFileInputStream(imgData, getContext());
         byte[] array = Util.inputStreamToByte(fileInputStream);
 
-        if(array == null){
+        if (array == null) {
             JSObject ret = new JSObject();
             ret.put("errCode", 1);
             ret.put("errMsg", "文件路径有误：" + imgData);
@@ -307,7 +313,6 @@ public class FreshconnectWebChat extends Plugin {
     }
 
 
-
     /**
      * 下载图片
      *
@@ -316,13 +321,47 @@ public class FreshconnectWebChat extends Plugin {
     @PluginMethod()
     public void hasPermission(PluginCall call) throws IOException {
 
-        JSObject ret = new JSObject();
         if (!this.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
-            ret.put("errCode", -1);
-            ret.put("errMsg", "plugin request permission");
+            this.saveCall(call);
+            this.pluginRequestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, FreshConnectPluginRequestCodes.FILESYSTEM_REQUEST_WRITE_FILE_PERMISSIONS);
+        } else {
+            JSObject ret = new JSObject();
+            ret.put("errCode", 0);
+            call.resolve(ret);
         }
-        call.resolve(ret);
 
+    }
+
+
+    @Override
+    protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        Logger.debug(getLogTag(), "handling request perms result");
+
+        if (getSavedCall() == null) {
+            Logger.debug(getLogTag(), "No stored plugin call for permissions request result");
+            return;
+        }
+
+        PluginCall savedCall = getSavedCall();
+
+        for (int i = 0; i < grantResults.length; i++) {
+            int result = grantResults[i];
+            String perm = permissions[i];
+            if (result == PackageManager.PERMISSION_DENIED) {
+                Logger.debug(getLogTag(), "User denied storage permission: " + perm);
+                JSObject ret = new JSObject();
+                ret.put("errCode", -1);
+                savedCall.resolve(ret);
+                this.freeSavedCall();
+                return;
+            }
+        }
+
+        JSObject ret = new JSObject();
+        ret.put("errCode", 0);
+        savedCall.resolve(ret);
+        this.freeSavedCall();
     }
 }
