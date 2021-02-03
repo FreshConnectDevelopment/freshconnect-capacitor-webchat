@@ -6,6 +6,7 @@
   npm i -S freshconnect-capacitor-webchat
   ```
 - android代码修改
+  - 将manifest中的org.capacitor.quasar.app字符串全部替换为当前app的包路径
   - 修改/src-capacitor/app工程下的build.gradle的google源为https://maven.aliyun.com/repository/google
   - quasar build -m capacitor -T android // 工程根目录执行
   - 启动android IDE
