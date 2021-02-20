@@ -5,7 +5,7 @@ export class FreshconnectWebchatWeb extends WebPlugin implements FreshconnectWeb
 
   constructor() {
     super({
-      name: 'FreshconnectWebchat',
+      name: 'FreshconnectWebChat',
       platforms: ['web'],
     });
   }

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		03FC29A292ACC40490383A1F /* Pods_Plugin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2A61DA5A1F2DD4F959604D /* Pods_Plugin.framework */; };
+		181A9FEF25DDFE0D006E1895 /* WXDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181A9FEE25DDFE0D006E1895 /* WXDelegate.swift */; };
 		18616B5A25AEA38D00502F4C /* WXApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 18616B5525AEA38D00502F4C /* WXApi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		18616B5B25AEA38D00502F4C /* WXApiObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 18616B5625AEA38D00502F4C /* WXApiObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		18616B5C25AEA38D00502F4C /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 18616B5725AEA38D00502F4C /* README.txt */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		181A9FEE25DDFE0D006E1895 /* WXDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WXDelegate.swift; sourceTree = "<group>"; };
 		18616B5525AEA38D00502F4C /* WXApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApi.h; sourceTree = "<group>"; };
 		18616B5625AEA38D00502F4C /* WXApiObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXApiObject.h; sourceTree = "<group>"; };
 		18616B5725AEA38D00502F4C /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 		50ADFF8A201F53D600D50D53 /* Plugin */ = {
 			isa = PBXGroup;
 			children = (
+				181A9FEE25DDFE0D006E1895 /* WXDelegate.swift */,
 				50E1A94720377CB70090CE1A /* Plugin.swift */,
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
 				50ADFFA72020EE4F00D50D53 /* Plugin.m */,
@@ -348,6 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				181A9FEF25DDFE0D006E1895 /* WXDelegate.swift in Sources */,
 				50E1A94820377CB70090CE1A /* Plugin.swift in Sources */,
 				50ADFFA82020EE4F00D50D53 /* Plugin.m in Sources */,
 			);

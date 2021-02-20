@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.source = { :git => package['repository']['url'], :tag => s.version.to_s }
   s.source_files = 'ios/SDKExport/*.h',  'ios/Plugin/**/*.{swift,h,m,c,cc,mm,cpp}'
   s.vendored_libraries  = 'ios/SDKExport/libWeChatSDK.a'
-  s.public_header_files = 'ios/WechatKit/*.h', 'ios/SDKExport/*.h'
+  s.public_header_files = 'ios/Plugin/*.h', 'ios/SDKExport/*.h'
 
   s.frameworks = 'SystemConfiguration', 'Security', 'CoreTelephony', 'CFNetwork', 'UIKit'
   s.libraries = 'z', 'c++', 'sqlite3.0'
